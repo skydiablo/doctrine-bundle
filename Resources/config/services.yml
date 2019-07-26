@@ -1,0 +1,12 @@
+services:
+    skydiablo.doctrine.repository.base:
+        class: 'SkyDiablo\DoctrineBundle\ORM\Repository\BaseRepository'
+        factory: ['@doctrine.orm.default_entity_manager', 'getRepository']
+        abstract: true
+        calls:
+            - [ setDebugMode, ['%kernel.debug%']]
+
+    skydiablo.doctrine.entity.factory.active_entity:
+        class: 'SkyDiablo\DoctrineBundle\ORM\Entity\Factory\ActiveEntityFactory'
+        arguments: ['@doctrine.orm.entity_manager']
+        abstract: true
