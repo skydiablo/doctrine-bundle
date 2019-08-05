@@ -2,12 +2,16 @@
 
 namespace SkyDiablo\DoctrineBundle\ORM\Repository;
 
+use Closure;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Util\ClassUtils;
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
+use InvalidArgumentException;
 use SkyDiablo\DoctrineBundle\Exception\EntityException;
 use SkyDiablo\DoctrineBundle\ORM\Entity\Entity;
 use SkyDiablo\DoctrineBundle\ORM\Entity\EntityInterface;
@@ -18,7 +22,7 @@ use SkyDiablo\DoctrineBundle\ORM\Entity\EntityInterface;
  * @package SkyDiablo\DoctrineBundle\ORM\Repository
  * @method EntityInterface|null find($id, $lockMode = null, $lockVersion = null)
  */
-abstract class BaseRepository extends \Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository {
+abstract class BaseRepository extends ServiceEntityRepository {
 
     const ENTITY = 'entity';
     const ORDER_BY_ASC = 'ASC';
@@ -157,7 +161,7 @@ abstract class BaseRepository extends \Doctrine\Bundle\DoctrineBundle\Repository
                         ->where(
                                 $qb->expr()->in($this->entityField('id'), ':ids')
                         )
-                        ->setParameter('ids', $ids, \Doctrine\DBAL\Connection::PARAM_INT_ARRAY)
+                        ->setParameter('ids', $ids, Connection::PARAM_INT_ARRAY)
                         ->getQuery()->execute();
     }
 
@@ -166,7 +170,7 @@ abstract class BaseRepository extends \Doctrine\Bundle\DoctrineBundle\Repository
      * @param int $offset
      * @param null $order ASC|DESC check class const
      * @param string $orderField Entity field. BEWARE: there is no injection protection!
-     * @return \SkyDiablo\DoctrineBundle\ORM\Entity\EntityInterface[]
+     * @return EntityInterface[]
      */
     public function getAll($amount = null, $offset = null, $order = null, $orderField = 'id') {
         return $this->getAllQueryBuilder($amount, $offset, $order, $orderField)->getQuery()->execute();
@@ -341,12 +345,12 @@ abstract class BaseRepository extends \Doctrine\Bundle\DoctrineBundle\Repository
     /**
      * @param string $className
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return string
      */
     public static function discriminatorByClass($className) {
         if (!is_string($className)) {
-            throw new \InvalidArgumentException('Argument "classname" should be a string, given: ' . gettype($className));
+            throw new InvalidArgumentException('Argument "classname" should be a string, given: ' . gettype($className));
         }
 
         $parts = explode('\\', $className);
@@ -364,14 +368,14 @@ abstract class BaseRepository extends \Doctrine\Bundle\DoctrineBundle\Repository
 
     /**
      * @param QueryBuilder $queryBuilder
-     * @param \Closure $closure
+     * @param Closure $closure
      * @param int $batchSize
      * @param bool $autoFlush
      * @param null $indexBy
      * @return bool
      * @see https://packagist.org/packages/ocramius/doctrine-batch-utils
      */
-    public function pageThrough(QueryBuilder $queryBuilder, \Closure $closure, int $batchSize = 100, $autoFlush = false, $indexBy = null) {
+    public function pageThrough(QueryBuilder $queryBuilder, Closure $closure, int $batchSize = 100, $autoFlush = false, $indexBy = null) {
         if (!$indexBy) {
             $indexBy = $this->entityField('id');
         }
@@ -402,13 +406,13 @@ abstract class BaseRepository extends \Doctrine\Bundle\DoctrineBundle\Repository
 
     /**
      * @param QueryBuilder $queryBuilder
-     * @param \Closure $closure (Takes an array of result objects as first parameter)
+     * @param Closure $closure (Takes an array of result objects as first parameter)
      * @param int $batchSize
      * @param bool $autoFlush
      * @param null $indexBy
      * @return bool
      */
-    public function pageThroughBatch(QueryBuilder $queryBuilder = null, \Closure $closure, int $batchSize = 100, $autoFlush = false, $indexBy = null) {
+    public function pageThroughBatch(QueryBuilder $queryBuilder = null, Closure $closure, int $batchSize = 100, $autoFlush = false, $indexBy = null) {
         if (!$queryBuilder) {
             $queryBuilder = $this->getAllQueryBuilder();
         }
@@ -441,13 +445,13 @@ abstract class BaseRepository extends \Doctrine\Bundle\DoctrineBundle\Repository
     }
 
     /**
-     * @param \Closure $closure
+     * @param Closure $closure
      * @param int $batchSize
      * @param bool $autoFlush
      * @param null $indexBy
      * @return bool
      */
-    public function pageThroughAll(\Closure $closure, int $batchSize = 100, $autoFlush = false, $indexBy = null) {
+    public function pageThroughAll(Closure $closure, int $batchSize = 100, $autoFlush = false, $indexBy = null) {
         return $this->pageThroughBatch(
                         null,
                         $closure,
@@ -484,10 +488,10 @@ abstract class BaseRepository extends \Doctrine\Bundle\DoctrineBundle\Repository
     }
 
     /**
-     * @param \Closure $call
+     * @param Closure $call
      * @return mixed
      */
-    protected function runInDisabledSoftDeletableFilter(\Closure $call) {
+    protected function runInDisabledSoftDeletableFilter(Closure $call) {
         if ($oldState = $this->isSoftDeleteFilterEnabled()) {
             $this->disableSoftDeleteFilter();
         }
