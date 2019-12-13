@@ -5,7 +5,8 @@ namespace SkyDiablo\DoctrineBundle\ORM\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 
-trait EntityTrait {
+trait EntityTrait
+{
 
     /**
      * @var int
@@ -21,8 +22,9 @@ trait EntityTrait {
     /**
      * @return int
      */
-    public function getId() {
-        return (int) $this->id;
+    public function getId()
+    {
+        return (int)$this->id;
     }
 
     /**
@@ -30,15 +32,23 @@ trait EntityTrait {
      * @param EntityInterface $entity
      * @return bool
      */
-    public function equal(EntityInterface $entity) {
+    public function equal(EntityInterface $entity)
+    {
         return $entity->getId() === $this->getId();
     }
 
     /**
      * reset id to define an new entity
      */
-    public function __clone() {
+    public function __clone()
+    {
         $this->id = null;
+    }
+
+    public function getShortClassName(bool $lowercase = false)
+    {
+        $shortName = (new \ReflectionClass(get_called_class()))->getShortName();
+        return $lowercase ? strtolower($shortName) : $shortName;
     }
 
 }

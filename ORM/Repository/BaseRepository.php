@@ -22,7 +22,8 @@ use SkyDiablo\DoctrineBundle\ORM\Entity\EntityInterface;
  * @package SkyDiablo\DoctrineBundle\ORM\Repository
  * @method EntityInterface|null find($id, $lockMode = null, $lockVersion = null)
  */
-abstract class BaseRepository extends ServiceEntityRepository {
+abstract class BaseRepository extends ServiceEntityRepository
+{
 
     const ENTITY = 'entity';
     const ORDER_BY_ASC = 'ASC';
@@ -33,23 +34,26 @@ abstract class BaseRepository extends ServiceEntityRepository {
     /**
      * @return bool
      */
-    public function getDebugMode() {
-        return (bool) $this->debugMode;
+    public function getDebugMode()
+    {
+        return (bool)$this->debugMode;
     }
 
     /**
      * @param $debugMode
      * @return $this
      */
-    public function setDebugMode($debugMode) {
-        $this->debugMode = (bool) $debugMode;
+    public function setDebugMode($debugMode)
+    {
+        $this->debugMode = (bool)$debugMode;
         return $this;
     }
 
     /**
      * @return Query
      */
-    public function getQuery() {
+    public function getQuery()
+    {
         return $this->createQueryBuilder()->getQuery();
     }
 
@@ -58,7 +62,8 @@ abstract class BaseRepository extends ServiceEntityRepository {
      * @param string|null $indexBy
      * @return QueryBuilder
      */
-    public function createQueryBuilder($alias = self::ENTITY, $indexBy = null) {
+    public function createQueryBuilder($alias = self::ENTITY, $indexBy = null)
+    {
         return parent::createQueryBuilder($alias, $indexBy);
     }
 
@@ -67,7 +72,8 @@ abstract class BaseRepository extends ServiceEntityRepository {
      * @return $this
      * @throws EntityException
      */
-    public function persist(EntityInterface $entity) {
+    public function persist(EntityInterface $entity)
+    {
         if ($this->debugMode && $entity->getId()) {
             if (!$this->getEntityManager()->contains($entity)) {
                 throw EntityException::rePersist($entity);
@@ -81,7 +87,8 @@ abstract class BaseRepository extends ServiceEntityRepository {
      * @param EntityInterface $entity
      * @return $this
      */
-    public function remove(EntityInterface $entity) {
+    public function remove(EntityInterface $entity)
+    {
         $this->getEntityManager()->remove($entity);
         return $this;
     }
@@ -90,7 +97,8 @@ abstract class BaseRepository extends ServiceEntityRepository {
      * @param EntityInterface|null $entity
      * @return $this
      */
-    public function flush(EntityInterface $entity = null) {
+    public function flush(EntityInterface $entity = null)
+    {
         $this->getEntityManager()->flush($entity);
         return $this;
     }
@@ -99,7 +107,8 @@ abstract class BaseRepository extends ServiceEntityRepository {
      * @param EntityInterface $entity
      * @return EntityInterface
      */
-    public function save(EntityInterface $entity) {
+    public function save(EntityInterface $entity)
+    {
         $this->persist($entity)->flush($entity);
         return $entity;
     }
@@ -108,7 +117,8 @@ abstract class BaseRepository extends ServiceEntityRepository {
      * @param int[] $ids
      * @return int number of effected elements
      */
-    public function deleteByIds(array $ids) {
+    public function deleteByIds(array $ids)
+    {
         $counter = 0;
         while ($package = array_splice($ids, 0, 10)) { // batch in sub packages
             $entities = $this->getByIds($package); // load entities - to benefit of all the ORM features!
@@ -125,7 +135,8 @@ abstract class BaseRepository extends ServiceEntityRepository {
      * @param EntityInterface $entity
      * @return $this
      */
-    public function delete(EntityInterface $entity) {
+    public function delete(EntityInterface $entity)
+    {
         return $this->remove($entity)->flush($entity);
     }
 
@@ -133,7 +144,8 @@ abstract class BaseRepository extends ServiceEntityRepository {
      * @param EntityInterface $entity
      * @return $this
      */
-    public function detach(EntityInterface $entity) {
+    public function detach(EntityInterface $entity)
+    {
         $this->getEntityManager()->detach($entity);
         return $this;
     }
@@ -145,8 +157,9 @@ abstract class BaseRepository extends ServiceEntityRepository {
      * @return EntityInterface
      * @see find
      */
-    public function getById($id) {
-        return $this->find((int) $id);
+    public function getById($id)
+    {
+        return $this->find((int)$id);
     }
 
     /**
@@ -155,14 +168,15 @@ abstract class BaseRepository extends ServiceEntityRepository {
      * @param bool $indexById
      * @return EntityInterface[]
      */
-    public function getByIds(array $ids, bool $indexById = false) {
+    public function getByIds(array $ids, bool $indexById = false)
+    {
         $qb = $this->createQueryBuilder(self::ENTITY, $indexById ? $this->entityField('id') : null); // INDEX BY entity.id
         return $qb
-                        ->where(
-                                $qb->expr()->in($this->entityField('id'), ':ids')
-                        )
-                        ->setParameter('ids', $ids, Connection::PARAM_INT_ARRAY)
-                        ->getQuery()->execute();
+            ->where(
+                $qb->expr()->in($this->entityField('id'), ':ids')
+            )
+            ->setParameter('ids', $ids, Connection::PARAM_INT_ARRAY)
+            ->getQuery()->execute();
     }
 
     /**
@@ -172,7 +186,8 @@ abstract class BaseRepository extends ServiceEntityRepository {
      * @param string $orderField Entity field. BEWARE: there is no injection protection!
      * @return EntityInterface[]
      */
-    public function getAll($amount = null, $offset = null, $order = null, $orderField = 'id') {
+    public function getAll($amount = null, $offset = null, $order = null, $orderField = 'id')
+    {
         return $this->getAllQueryBuilder($amount, $offset, $order, $orderField)->getQuery()->execute();
     }
 
@@ -183,7 +198,8 @@ abstract class BaseRepository extends ServiceEntityRepository {
      * @param string $orderField Entity field. BEWARE: there is no injection protection!
      * @return QueryBuilder
      */
-    protected function getAllQueryBuilder($amount = null, $offset = null, $order = null, $orderField = 'id') {
+    protected function getAllQueryBuilder($amount = null, $offset = null, $order = null, $orderField = 'id')
+    {
         $qb = $this->createQueryBuilder();
         if ($order) {
             switch (strtoupper($order)) {
@@ -196,8 +212,8 @@ abstract class BaseRepository extends ServiceEntityRepository {
             }
         }
         return $qb
-                        ->setMaxResults((int) $amount ?: null)
-                        ->setFirstResult((int) $offset ?: null);
+            ->setMaxResults((int)$amount ?: null)
+            ->setFirstResult((int)$offset ?: null);
     }
 
     /**
@@ -206,15 +222,21 @@ abstract class BaseRepository extends ServiceEntityRepository {
      * @param QueryBuilder $queryBuilder
      * @return QueryBuilder
      */
-    protected function getByRelatedEntityQueryBuilder(string $field, Entity $entity, QueryBuilder $queryBuilder = null) {
+    protected function getByRelatedEntityQueryBuilder(string $field, Entity $entity, QueryBuilder $queryBuilder = null)
+    {
+        return $this->getByFieldQueryBuilder($field, $entity, null, $queryBuilder);
+    }
+
+    protected function getByFieldQueryBuilder(string $field, $value, $type = null, QueryBuilder $queryBuilder = null)
+    {
         $qb = $queryBuilder ?: $this->createQueryBuilder();
         return $qb
-                        ->where(
-                                $qb->expr()->eq(
-                                        $this->entityField($field), ':' . $field
-                                )
-                        )
-                        ->setParameter($field, $entity);
+            ->andWhere(
+                $qb->expr()->eq(
+                    $this->entityField($field), ':' . $field
+                )
+            )
+            ->setParameter($field, $value, $type);
     }
 
     /**
@@ -222,7 +244,8 @@ abstract class BaseRepository extends ServiceEntityRepository {
      * @param Entity $entity
      * @return Entity
      */
-    protected function getOneOrNullByRelatedEntity(string $field, Entity $entity) {
+    protected function getOneOrNullByRelatedEntity(string $field, Entity $entity)
+    {
         return $this->getByRelatedEntityQueryBuilder($field, $entity)->getQuery()->getOneOrNullResult();
     }
 
@@ -235,7 +258,8 @@ abstract class BaseRepository extends ServiceEntityRepository {
      * @param string $orderField
      * @return QueryBuilder
      */
-    protected function getAllByRelatedEntityQueryBuilder(string $field, Entity $entity, $amount = null, $offset = null, $order = null, $orderField = 'id') {
+    protected function getAllByRelatedEntityQueryBuilder(string $field, Entity $entity, $amount = null, $offset = null, $order = null, $orderField = 'id')
+    {
         $qb = $this->getAllQueryBuilder($amount, $offset, $order, $orderField);
         return $this->getByRelatedEntityQueryBuilder($field, $entity, $qb);
     }
@@ -249,14 +273,16 @@ abstract class BaseRepository extends ServiceEntityRepository {
      * @param string $orderField
      * @return Entity[]
      */
-    protected function getAllByRelatedEntity(string $field, Entity $entity, $amount = null, $offset = null, $order = null, $orderField = 'id') {
+    protected function getAllByRelatedEntity(string $field, Entity $entity, $amount = null, $offset = null, $order = null, $orderField = 'id')
+    {
         return $this->getAllByRelatedEntityQueryBuilder($field, $entity, $amount, $offset, $order, $orderField)->getQuery()->execute();
     }
 
     /**
      * @return EntityManager
      */
-    public function getEntityManager() {
+    public function getEntityManager()
+    {
         return parent::getEntityManager();
     }
 
@@ -264,13 +290,14 @@ abstract class BaseRepository extends ServiceEntityRepository {
      * Truncate Table -- disable the FOREIGN_KEY_CHECKS
      * @return boolean
      */
-    public function truncate() {
+    public function truncate()
+    {
         $classMetadata = $this->getClassMetadata();
         $connection = $this->getEntityManager()->getConnection();
         $connection->beginTransaction();
         try {
             $q = $connection->getDatabasePlatform()->getTruncateTableSQL(
-                    $classMetadata->getTableName()
+                $classMetadata->getTableName()
             );
             $connection->query('SET FOREIGN_KEY_CHECKS=0');
             $connection->executeUpdate($q);
@@ -287,7 +314,8 @@ abstract class BaseRepository extends ServiceEntityRepository {
      * Delete ALL entitys from table -- disable the FOREIGN_KEY_CHECKS
      * @return boolean
      */
-    public function deleteAll() {
+    public function deleteAll()
+    {
         $classMetadata = $this->getClassMetadata();
         $connection = $this->getEntityManager()->getConnection();
         $connection->beginTransaction();
@@ -310,7 +338,8 @@ abstract class BaseRepository extends ServiceEntityRepository {
      * @param integer $index
      * @return boolean
      */
-    public function setAutoIncrement($index) {
+    public function setAutoIncrement($index)
+    {
         $classMetadata = $this->getClassMetadata();
         $connection = $this->getEntityManager()->getConnection();
         $connection->beginTransaction();
@@ -322,7 +351,7 @@ abstract class BaseRepository extends ServiceEntityRepository {
                 'index' => Type::INTEGER
             ];
             $connection->executeQuery(
-                    "ALTER TABLE {$classMetadata->getTableName()} AUTO_INCREMENT = :index", $params, $types
+                "ALTER TABLE {$classMetadata->getTableName()} AUTO_INCREMENT = :index", $params, $types
             );
             $connection->commit();
             return true;
@@ -338,17 +367,19 @@ abstract class BaseRepository extends ServiceEntityRepository {
      *
      * @return string
      */
-    public function entityField($field, $entityName = self::ENTITY) {
+    public function entityField($field, $entityName = self::ENTITY)
+    {
         return sprintf('%s.%s', $entityName, $field);
     }
 
     /**
      * @param string $className
      *
-     * @throws InvalidArgumentException
      * @return string
+     * @throws InvalidArgumentException
      */
-    public static function discriminatorByClass($className) {
+    public static function discriminatorByClass($className)
+    {
         if (!is_string($className)) {
             throw new InvalidArgumentException('Argument "classname" should be a string, given: ' . gettype($className));
         }
@@ -362,7 +393,8 @@ abstract class BaseRepository extends ServiceEntityRepository {
      *
      * @return string
      */
-    public static function discriminatorByEntity(EntityInterface $entity) {
+    public static function discriminatorByEntity(EntityInterface $entity)
+    {
         return self::discriminatorByClass(ClassUtils::getClass($entity));
     }
 
@@ -375,17 +407,18 @@ abstract class BaseRepository extends ServiceEntityRepository {
      * @return bool
      * @see https://packagist.org/packages/ocramius/doctrine-batch-utils
      */
-    public function pageThrough(QueryBuilder $queryBuilder, Closure $closure, int $batchSize = 100, $autoFlush = false, $indexBy = null) {
+    public function pageThrough(QueryBuilder $queryBuilder, Closure $closure, int $batchSize = 100, $autoFlush = false, $indexBy = null)
+    {
         if (!$indexBy) {
             $indexBy = $this->entityField('id');
         }
         $queryBuilder
-                ->addOrderBy($this->entityField('id'), self::ORDER_BY_ASC)
-                ->andWhere(
-                        $queryBuilder->expr()->gt($this->entityField('id'), ':__id__')
-                )
-                ->setMaxResults($batchSize)
-                ->indexBy(self::ENTITY, $indexBy);
+            ->addOrderBy($this->entityField('id'), self::ORDER_BY_ASC)
+            ->andWhere(
+                $queryBuilder->expr()->gt($this->entityField('id'), ':__id__')
+            )
+            ->setMaxResults($batchSize)
+            ->indexBy(self::ENTITY, $indexBy);
 
         $lastId = 0;
         while ($elements = $queryBuilder->setParameter('__id__', $lastId, Type::INTEGER)->getQuery()->execute()) {
@@ -412,7 +445,8 @@ abstract class BaseRepository extends ServiceEntityRepository {
      * @param null $indexBy
      * @return bool
      */
-    public function pageThroughBatch(QueryBuilder $queryBuilder = null, Closure $closure, int $batchSize = 100, $autoFlush = false, $indexBy = null) {
+    public function pageThroughBatch(QueryBuilder $queryBuilder = null, Closure $closure, int $batchSize = 100, $autoFlush = false, $indexBy = null)
+    {
         if (!$queryBuilder) {
             $queryBuilder = $this->getAllQueryBuilder();
         }
@@ -420,12 +454,12 @@ abstract class BaseRepository extends ServiceEntityRepository {
             $indexBy = $this->entityField('id');
         }
         $queryBuilder
-                ->addOrderBy($this->entityField('id'), self::ORDER_BY_ASC)
-                ->andWhere(
-                        $queryBuilder->expr()->gt($this->entityField('id'), ':__id__')
-                )
-                ->setMaxResults($batchSize)
-                ->indexBy(self::ENTITY, $indexBy);
+            ->addOrderBy($this->entityField('id'), self::ORDER_BY_ASC)
+            ->andWhere(
+                $queryBuilder->expr()->gt($this->entityField('id'), ':__id__')
+            )
+            ->setMaxResults($batchSize)
+            ->indexBy(self::ENTITY, $indexBy);
 
         $lastId = 0;
         while ($elements = $queryBuilder->setParameter('__id__', $lastId, Type::INTEGER)->getQuery()->execute()) {
@@ -451,20 +485,22 @@ abstract class BaseRepository extends ServiceEntityRepository {
      * @param null $indexBy
      * @return bool
      */
-    public function pageThroughAll(Closure $closure, int $batchSize = 100, $autoFlush = false, $indexBy = null) {
+    public function pageThroughAll(Closure $closure, int $batchSize = 100, $autoFlush = false, $indexBy = null)
+    {
         return $this->pageThroughBatch(
-                        null,
-                        $closure,
-                        $batchSize,
-                        $autoFlush,
-                        $indexBy
+            null,
+            $closure,
+            $batchSize,
+            $autoFlush,
+            $indexBy
         );
     }
 
     /**
      * @return $this
      */
-    public function disableSoftDeleteFilter() {
+    public function disableSoftDeleteFilter()
+    {
         $filters = $this->getEntityManager()->getFilters();
         $filters->disable('softdeleteable');
         return $this;
@@ -473,7 +509,8 @@ abstract class BaseRepository extends ServiceEntityRepository {
     /**
      * @return $this
      */
-    public function enableSoftDeleteFilter() {
+    public function enableSoftDeleteFilter()
+    {
         $filters = $this->getEntityManager()->getFilters();
         $filters->enable('softdeleteable');
         return $this;
@@ -482,7 +519,8 @@ abstract class BaseRepository extends ServiceEntityRepository {
     /**
      * @return bool
      */
-    public function isSoftDeleteFilterEnabled() {
+    public function isSoftDeleteFilterEnabled()
+    {
         $filters = $this->getEntityManager()->getFilters();
         return $filters->isEnabled('softdeleteable');
     }
@@ -491,7 +529,8 @@ abstract class BaseRepository extends ServiceEntityRepository {
      * @param Closure $call
      * @return mixed
      */
-    protected function runInDisabledSoftDeletableFilter(Closure $call) {
+    protected function runInDisabledSoftDeletableFilter(Closure $call)
+    {
         if ($oldState = $this->isSoftDeleteFilterEnabled()) {
             $this->disableSoftDeleteFilter();
         }

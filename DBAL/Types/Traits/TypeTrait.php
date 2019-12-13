@@ -21,7 +21,7 @@ trait TypeTrait
         }
     }
 
-    public function getName()
+    public function getName(): string
     {
         return static::__TYPE_NAME;
     }
@@ -30,7 +30,7 @@ trait TypeTrait
      * @param AbstractPlatform $platform
      * @return bool
      */
-    public function requiresSQLCommentHint(AbstractPlatform $platform)
+    public function requiresSQLCommentHint(AbstractPlatform $platform): bool
     {
         return true;
     }
