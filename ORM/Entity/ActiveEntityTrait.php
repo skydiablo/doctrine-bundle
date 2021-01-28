@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace SkyDiablo\DoctrineBundle\ORM\Entity;
 
-use Doctrine\Common\Persistence\Mapping\ClassMetadata;
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Persistence\Mapping\ClassMetadata;
+use Doctrine\Persistence\ObjectManager;
 use SkyDiablo\DoctrineBundle\Exception\EntityException;
 use JMS\Serializer\Annotation as Serializer;
 
