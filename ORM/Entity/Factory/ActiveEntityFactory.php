@@ -2,7 +2,7 @@
 
 namespace SkyDiablo\DoctrineBundle\ORM\Entity\Factory;
 
-use Doctrine\Common\Persistence\ObjectManagerAware;
+use Doctrine\Persistence\ObjectManagerAware;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ORM\EntityManager;
 use SkyDiablo\DoctrineBundle\Exception\EntityException;
