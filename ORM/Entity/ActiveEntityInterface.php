@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace SkyDiablo\DoctrineBundle\ORM\Entity;
 
-use Doctrine\Persistence\ObjectManagerAware;
+use SkyDiablo\DoctrineBundle\Persistence\ObjectManagerAware;
 
 /**
  * Description of ActiveEntityInterface

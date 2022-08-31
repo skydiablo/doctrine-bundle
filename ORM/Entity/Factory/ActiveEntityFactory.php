@@ -2,12 +2,12 @@
 
 namespace SkyDiablo\DoctrineBundle\ORM\Entity\Factory;
 
-use Doctrine\Persistence\ObjectManagerAware;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ORM\EntityManager;
 use SkyDiablo\DoctrineBundle\Exception\EntityException;
 use SkyDiablo\DoctrineBundle\Factory\ObjectFactory;
 use SkyDiablo\DoctrineBundle\ORM\Entity\ActiveEntity;
+use SkyDiablo\DoctrineBundle\Persistence\ObjectManagerAware;
 
 /**
  * @author SkyDiablo <skydiablo@gmx.net>
