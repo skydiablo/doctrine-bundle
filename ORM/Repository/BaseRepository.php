@@ -7,8 +7,10 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use InvalidArgumentException;
@@ -17,7 +19,7 @@ use SkyDiablo\DoctrineBundle\ORM\Entity\Entity;
 use SkyDiablo\DoctrineBundle\ORM\Entity\EntityInterface;
 
 /**
- * Created by Created by SkyDiablo
+ * Created by SkyDiablo
  * Class BaseRepository
  * @package SkyDiablo\DoctrineBundle\ORM\Repository
  * @method EntityInterface|null find($id, $lockMode = null, $lockVersion = null)
@@ -102,6 +104,17 @@ abstract class BaseRepository extends ServiceEntityRepository
         $this->getEntityManager()->flush($entity);
         return $this;
     }
+
+    public function clear(){
+        $entityManager = $this->getEntityManager();
+        $unitOfWork = $entityManager->getUnitOfWork();
+        $entities = $unitOfWork->getIdentityMap()[Entity::class] ?? [];
+
+        foreach ($entities as $entity) {
+            $entityManager->detach($entity);
+        }
+    }
+
 
     /**
      * @param EntityInterface $entity
@@ -279,7 +292,7 @@ abstract class BaseRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return EntityManager
+     * @return EntityManagerInterface
      */
     public function getEntityManager()
     {
@@ -348,7 +361,7 @@ abstract class BaseRepository extends ServiceEntityRepository
                 'index' => $index
             ];
             $types = [
-                'index' => Type::INTEGER
+                'index' => ParameterType::INTEGER
             ];
             $connection->executeQuery(
                 "ALTER TABLE {$classMetadata->getTableName()} AUTO_INCREMENT = :index", $params, $types
@@ -421,7 +434,7 @@ abstract class BaseRepository extends ServiceEntityRepository
             ->indexBy(self::ENTITY, $indexBy);
 
         $lastId = 0;
-        while ($elements = $queryBuilder->setParameter('__id__', $lastId, Type::INTEGER)->getQuery()->execute()) {
+        while ($elements = $queryBuilder->setParameter('__id__', $lastId, ParameterType::INTEGER)->getQuery()->execute()) {
             $elements = new ArrayCollection($elements);
             $lastElement = $elements->last();
             $lastId = $lastElement->getId();
@@ -462,7 +475,7 @@ abstract class BaseRepository extends ServiceEntityRepository
             ->indexBy(self::ENTITY, $indexBy);
 
         $lastId = 0;
-        while ($elements = $queryBuilder->setParameter('__id__', $lastId, Type::INTEGER)->getQuery()->execute()) {
+        while ($elements = $queryBuilder->setParameter('__id__', $lastId, ParameterType::INTEGER)->getQuery()->execute()) {
             $collection = new ArrayCollection($elements);
             $lastElement = $collection->last();
             $lastId = $lastElement->getId();
